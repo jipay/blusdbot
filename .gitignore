@@ -1,0 +1,4 @@
+node_modules
+.env
+blusdbot.js
+package-lock.json
