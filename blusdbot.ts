@@ -138,12 +138,12 @@ async function onSwap(e: any) {
 	const args = e.args;
 	let soldToken = args.sold_id.toString() == '1' ? 'LUSD3CRV' : 'bLUSD';
 	let buyToken = args.bought_id.toString() == '1' ? 'LUSD3CRV' : 'bLUSD';
-	let numberIn = FixedNumber.fromString(ethers.formatEther(args.tokens_sold)).toUnsafeFloat();
-	let numberOut = FixedNumber.fromString(ethers.formatEther(args.tokens_bought)).toUnsafeFloat().toFixed(2);
+	let numberIn: number = FixedNumber.fromString(ethers.formatEther(args.tokens_sold)).toUnsafeFloat();
+	let numberOut: number = FixedNumber.fromString(ethers.formatEther(args.tokens_bought)).toUnsafeFloat();
 	const stEthToEthFactor: number =  await getCurvePrice("0x74ED5d42203806c8CDCf2F04Ca5F60DC777b901c", 1000000000000000000n, 0n, 1n);
 	//const stEthToEthFactor: number = 1;
 	//const msg = `🚀 Swap ${numberIn} <a href="http://etherscan.io">${soldToken}</a> for ${ethers.formatEther(args.tokens_bought)} <a href="http://etherscan.io">${buyToken}</a> - bLUSD price ${stEthToEthFactor} - <a href="https://etherscan.io/tx/${e.transactionHash}">txHash</a>\n<i>block ${blockNumber}</i> | #${transactionIndex}`
-	const msg = `🚀 Swap ${numberIn.toFixed(2)} ${soldToken} for ${numberOut} ${buyToken} - bLUSD/LUSD price ${stEthToEthFactor.toFixed(5)} - <a href="https://etherscan.io/tx/${e.transactionHash}">txHash</a>\n<i>block ${blockNumber}</i> | #${transactionIndex}`
+	const msg = `🚀 Swap ${numberIn.toFixed(2)} ${soldToken} for ${numberOut.toFixed(2)} ${buyToken} - bLUSD/LUSD price ${stEthToEthFactor.toFixed(5)} - <a href="https://etherscan.io/tx/${e.transactionHash}">txHash</a>\n<i>block ${blockNumber}</i> | #${transactionIndex}`
 
 	if (numberIn >= MIN_SWAP_SIZE)
 		bot.telegram.sendMessage(process.env.CHATID as string, msg, { parse_mode: 'HTML', disable_web_page_preview: true });
@@ -151,21 +151,10 @@ async function onSwap(e: any) {
 		console.log(msg);
 }
 
-async function stethToEth(_blusdBalance: BigNumberish): Promise<number> {
-	const curveRouter = new ethers.Contract(CURVE_ROUTER_ADDRESS, abiCurveRouter, provider);
-	const ethBalanceConverted = await curveRouter.get_best_rate(BLUSD_ADDRESS, LUSD_ADDRESS, _blusdBalance);
-	return FixedNumber.fromString(ethers.formatUnits(ethBalanceConverted[1], 18)).toUnsafeFloat();
-	
-}
-
 async function getCurvePrice(_poolAddress: string, _amount: BigNumberish,
 	_i: BigNumberish, _j: BigNumberish): Promise<number> {
-		//const curvePool = new ethers.Contract(_poolAddress, abiCurveBlusd, provider);
 		const price = await contract.get_dy(_i, _j, _amount);
 		const price2 = await contract2.calc_withdraw_one_coin(1000000000000000000n, 0, false);
-		//console.log('curve price: ' + ethers.formatUnits(price, 18));
-		//return FixedNumber.fromValue(ethers.formatUnits(price, 18)).toUnsafeFloat();
-		console.log('price2 ' + FixedNumber.fromString(ethers.formatUnits(price2, 18)).toUnsafeFloat());
 		return FixedNumber.fromString(ethers.formatUnits(price, 18)).toUnsafeFloat() *
 		FixedNumber.fromString(ethers.formatUnits(price2, 18)).toUnsafeFloat();
 }
