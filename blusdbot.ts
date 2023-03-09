@@ -58,24 +58,6 @@ const abiTest = [
 	"function get_dy (uint256 i, uint256 j, uint256 dx) view returns (uint256)"
 ]
 
-// const abiCurveRouter = [
-// 	{
-// 		"name":"get_best_rate",
-// 		"outputs":
-// 		[
-// 			{"type":"address","name":""},
-// 			{"type":"uint256","name":""}
-// 		],
-// 		"inputs":
-// 		[
-// 			{"type":"address","name":"_from"},
-// 			{"type":"address","name":"_to"},
-// 			{"type":"uint256","name":"_amount"}
-// 		],
-// 		"stateMutability":"view","type":"function","gas":298910689
-// 	}
-// ];
-
 const abiCurveRouter = `[{"name":"get_best_rate",
 "outputs":[{"type":"address","name":""},{"type":"uint256","name":""}],
 "inputs":[{"type":"address","name":"_from"},{"type":"address","name":"_to"},{"type":"uint256","name":"_amount"}],
@@ -86,7 +68,7 @@ interface MyContext extends Context {
 	myProp?: string
 	myOtherProp?: number
 }
-console.log(process.env.BOT_TOKEN as string);
+
 // Create your bot and tell it about your context type
 const bot = new Telegraf<MyContext>(process.env.BOT_TOKEN as string);
 
@@ -116,9 +98,6 @@ const contract2 = new ethers.Contract(
 async function main() {
 	const filterSwap = contract.filters.TokenExchange(null, null, null, null, null);
 	const eventSwap = await contract.queryFilter(filterSwap, TEST_HISTORY_BLOCK_NUMBERS);
-	// contract.on("Swap", (src, dst, srcAmount, dstAmount, blockNumber, transactionIndex, logIndex) => {
-	// 	console.log("y'a d uswap");
-	// });
 	contract.on("*", (event) => {
 		console.log("Il se passe des trucs sur la blockchain");
 	});
@@ -145,9 +124,9 @@ async function onSwap(e: any) {
 	//const msg = `🚀 Swap ${numberIn} <a href="http://etherscan.io">${soldToken}</a> for ${ethers.formatEther(args.tokens_bought)} <a href="http://etherscan.io">${buyToken}</a> - bLUSD price ${stEthToEthFactor} - <a href="https://etherscan.io/tx/${e.transactionHash}">txHash</a>\n<i>block ${blockNumber}</i> | #${transactionIndex}`
 	const msg = `🚀 Swap ${numberIn.toFixed(2)} ${soldToken} for ${numberOut.toFixed(2)} ${buyToken} - bLUSD/LUSD price ${stEthToEthFactor.toFixed(5)} - <a href="https://etherscan.io/tx/${e.transactionHash}">txHash</a>\n<i>block ${blockNumber}</i> | #${transactionIndex}`
 
-	if (numberIn >= MIN_SWAP_SIZE)
-		bot.telegram.sendMessage(process.env.CHATID as string, msg, { parse_mode: 'HTML', disable_web_page_preview: true });
-	else
+	// if (numberIn >= MIN_SWAP_SIZE)
+	// 	bot.telegram.sendMessage(process.env.CHATID as string, msg, { parse_mode: 'HTML', disable_web_page_preview: true });
+	// else
 		console.log(msg);
 }
 
